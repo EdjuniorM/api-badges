@@ -5,6 +5,7 @@ import { BadgesRepository } from '../repository/badges';
 import { CreateBadgeDto } from '../dtos/create-badge.dto';
 import { Badge } from '../entity/Badge';
 import { HttpException } from '@nestjs/common';
+import { UpdateBadgeDto } from '../dtos/update-badge.dto';
 
 describe('BadgesService', () => {
   let service: BadgesService;
@@ -20,6 +21,8 @@ describe('BadgesService', () => {
             paginate: jest.fn(),
             create: jest.fn(),
             findBySlug: jest.fn(),
+            findById: jest.fn(),
+            update: jest.fn(),
           },
         },
       ],
@@ -108,6 +111,34 @@ describe('BadgesService', () => {
 
       await expect(service.findBySlug(slug)).rejects.toThrow(HttpException);
       await expect(service.findBySlug(slug)).rejects.toThrow('Badge inexistente');
+    });
+  });
+
+  describe('update', () => {
+    it('should update a badge', async () => {
+      const updateBadgeDto: UpdateBadgeDto = { name: 'Updated Badge' };
+      const existingBadge: { id: number; slug: string; name: string; imageUrl: string; } = {
+        id: 1,
+        slug: 'test-slug',
+        name: 'Test Badge',
+        imageUrl: 'http://example.com/image.png',
+      };
+      const updatedBadge: BadgeDto = {
+        ...existingBadge,
+        ...updateBadgeDto,
+      };
+
+      jest.spyOn(repository, 'findById').mockResolvedValue(existingBadge);
+      jest.spyOn(repository, 'update').mockResolvedValue(updatedBadge);
+
+      const result = await service.update(existingBadge.id, updateBadgeDto);
+
+      expect(result).toEqual({
+        id: updatedBadge.id,
+        slug: updatedBadge.slug,
+        name: updatedBadge.name,
+        imageUrl: updatedBadge.imageUrl,
+      });
     });
   });
 })

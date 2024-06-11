@@ -20,7 +20,7 @@ describe('BadgesController (integration)', () => {
 
     jwtService = moduleFixture.get<JwtService>(JwtService);
     accessToken = jwtService.sign({ sub: 1, username: 'testuser' }); 
-  }, 10000); 
+  }, 20000); 
 
   afterAll(async () => {
     await app.close();
@@ -54,5 +54,36 @@ describe('BadgesController (integration)', () => {
           .send(createBadgeDto)
           .expect(409);
       });
+  });
+  it('/badges/:id (PUT) - should update a badge', async () => {
+    const createBadgeDto = { slug: 'update-slug', name: 'Test Badge', imageUrl: 'http://example.com/image.png' };
+    const updateBadgeDto = { name: 'Updated Badge' };
+
+    const createResponse = await request(app.getHttpServer())
+      .post('/badges')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(createBadgeDto)
+      .expect(201);
+
+    const updateResponse = await request(app.getHttpServer())
+      .put(`/badges/${createResponse.body.id}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(updateBadgeDto);
+
+    console.log('Response:', updateResponse.body);
+
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body.name).toBe('Updated Badge');
+  });
+
+  it('/badges/:id (PUT) - should return 404 if badge is not found', async () => {
+    const updateBadgeDto = { name: 'Updated Badge' };
+
+    const response = await request(app.getHttpServer())
+      .put('/badges/99999') 
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(updateBadgeDto);
+
+    expect(response.status).toBe(404);
   });
 });

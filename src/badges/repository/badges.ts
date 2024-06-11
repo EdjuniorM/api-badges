@@ -45,6 +45,17 @@ export class BadgesRepository {
         return this.prisma.badge.create({ data: createBadge });
     }
 
+    async update(id: number, updateBadge: Badge) {
+      return this.prisma.badge.update({
+        where: { id },
+        data: updateBadge,
+      });
+    }
+  
+    async findById(id: number) {
+      return this.prisma.badge.findUnique({ where: { id } });
+    }
+
     async findBySlug(slug: string): Promise<Badge | null> {
         return this.prisma.badge.findFirst({ where: { slug } });
     }

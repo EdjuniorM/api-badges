@@ -3,6 +3,7 @@ import { BadgesRepository } from './repository/badges';
 import { CreateBadgeDto } from './dtos/create-badge.dto';
 import { BadgeDto } from 'src/user-badge/dtos/badge.dto';
 import { Badge } from './entity/Badge';
+import { UpdateBadgeDto } from './dtos/update-badge.dto';
 
 @Injectable()
 export class BadgesService {
@@ -35,7 +36,6 @@ export class BadgesService {
 
     
     if(existBadge) {
-      console.log("entrou no if? 409")
       throw new HttpException('Badge ja existente', 409);
     }
     const createBadge = new Badge({
@@ -54,6 +54,31 @@ export class BadgesService {
   } catch (error) {
     throw new HttpException(error.message, error.status);
   }
+  }
+
+  async update(id: number, updateBadgeDto: UpdateBadgeDto): Promise<BadgeDto | null> {
+    try {
+      const badge = await this.repository.findById(id);
+      if (!badge) {
+        throw new HttpException('Badge inexistente', 404);
+      }
+
+      const newUpdateBadge = new Badge({
+        slug: updateBadgeDto.slug,
+        name: updateBadgeDto.name,
+        imageUrl: updateBadgeDto.imageUrl
+      })
+      const updatedBadge = await this.repository.update(id, newUpdateBadge);
+
+      return {
+        id: updatedBadge.id,
+        slug: updatedBadge.slug,
+        name: updatedBadge.name,
+        imageUrl: updatedBadge.imageUrl,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 
   async findBySlug(slug: string): Promise<BadgeDto | null> {

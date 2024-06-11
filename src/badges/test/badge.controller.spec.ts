@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadgesController } from '../badges.controller';
 import { BadgesService } from '../badges.service';
 import { CreateBadgeDto } from '../dtos/create-badge.dto';
+import { UpdateBadgeDto } from '../dtos/update-badge.dto';
 
 describe('BadgesController', () => {
   let controller: BadgesController;
@@ -15,6 +16,7 @@ describe('BadgesController', () => {
           provide: BadgesService,
           useValue: {
             create: jest.fn(),
+            update: jest.fn(),
           },
         },
       ],
@@ -36,6 +38,24 @@ describe('BadgesController', () => {
       jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
 
       expect(await controller.create(createBadgeDto)).toEqual(expectedResult);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a badge', async () => {
+      const updateBadgeDto: UpdateBadgeDto = { name: 'Updated Badge' };
+      const updatedBadge = {
+        id: 1,
+        slug: 'test-slug',
+        name: 'Updated Badge',
+        imageUrl: 'http://example.com/image.png',
+      };
+
+      jest.spyOn(service, 'update').mockResolvedValue(updatedBadge);
+
+      const result = await controller.update(1, updateBadgeDto);
+
+      expect(result).toEqual(updatedBadge);
     });
   });
 });

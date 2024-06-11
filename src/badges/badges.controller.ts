@@ -1,8 +1,9 @@
-import { Controller, Get, Request, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Request, Post, Body, Put, Param, ParseIntPipe } from '@nestjs/common';
 import { BadgesService } from './badges.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateBadgeDto } from './dtos/create-badge.dto';
 import { Public } from 'src/auth/public.decorator';
+import { UpdateBadgeDto } from './dtos/update-badge.dto';
 
 @ApiTags('badges')
 @Controller('badges')
@@ -33,7 +34,19 @@ export class BadgesController {
     @ApiOperation({ summary: 'Create a new badge' })
     @ApiResponse({ status: 201, description: 'The badge has been successfully created.' })
     @ApiResponse({ status: 400, description: 'Invalid input.' })
+    @ApiResponse({ status: 409, description: 'Badge with this slug already exists.' })
     async create(@Body() createBadgeDto: CreateBadgeDto) {
         return this.badgesService.create(createBadgeDto);
+    }
+
+    @ApiBearerAuth()
+    @Put(':id')
+    @ApiOperation({ summary: 'Update an existing badge' })
+    @ApiResponse({ status: 200, description: 'The badge has been successfully updated.' })
+    @ApiResponse({ status: 400, description: 'Invalid input.' })
+    @ApiResponse({ status: 404, description: 'Badge not found.' })
+    @ApiParam({ name: 'id', type: Number })
+    async update(@Param('id', ParseIntPipe) id: number, @Body() updateBadgeDto: UpdateBadgeDto) {
+      return this.badgesService.update(id, updateBadgeDto);
     }
 }
