@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { BadgesRepository } from './repository/badges';
 import { CreateBadgeDto } from './dtos/create-badge.dto';
 import { BadgeDto } from 'src/user-badge/dtos/badge.dto';
@@ -9,6 +9,7 @@ export class BadgesService {
   constructor(private readonly repository: BadgesRepository) { }
 
   async paginate(page: number, size: number, sort: string, order: string, search: string) {
+    try{
     const { result, totalItems } = await this.repository.paginate(page, size, sort, order, search);
 
     const totalPages = Math.ceil(totalItems / size);
@@ -23,9 +24,20 @@ export class BadgesService {
         perPage: size,
       },
     };
+  } catch (error) {
+    throw new HttpException(error.message, 400);
+  }
   }
 
   async create(createBadgeDto: CreateBadgeDto): Promise<BadgeDto | null> {
+    try{
+    const existBadge = await this.repository.findBySlug(createBadgeDto.slug);
+
+    
+    if(existBadge) {
+      console.log("entrou no if? 409")
+      throw new HttpException('Badge ja existente', 409);
+    }
     const createBadge = new Badge({
       slug: createBadgeDto.slug,
       name: createBadgeDto.name,
@@ -39,10 +51,17 @@ export class BadgesService {
       name: badge.name,
       imageUrl: badge.imageUrl
     }
+  } catch (error) {
+    throw new HttpException(error.message, error.status);
+  }
   }
 
   async findBySlug(slug: string): Promise<BadgeDto | null> {
+    try{
     const badge = await this.repository.findBySlug(slug);
+    if(!badge) {
+      throw new HttpException('Badge inexistente', 400);
+    }
 
     return {
       id: badge.id,
@@ -50,7 +69,8 @@ export class BadgesService {
       name: badge.name,
       imageUrl: badge.imageUrl
     }
-
-
+  } catch (error) {
+    throw new HttpException(error.message, 400);
+  }
   }
 }

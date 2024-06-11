@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
-import { CreateBadgeDto } from "../dtos/create-badge.dto";
 import { Badge } from "../entity/Badge";
 import { Prisma } from "@prisma/client";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class BadgesRepository {
