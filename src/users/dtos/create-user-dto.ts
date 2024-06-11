@@ -18,9 +18,4 @@ export class CreateUserDto {
   @MaxLength(100)
   password: string;
   
-
-  @ApiProperty({ example: [1, 2], description: 'List of badge IDs associated with the user' })
-  @IsArray()
-  @IsInt({ each: true })
-  badgeIds: number[];
 }

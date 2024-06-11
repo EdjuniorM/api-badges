@@ -8,5 +8,6 @@ import { BadgesRepository } from './repository/badges';
   imports: [PrismaModule],
   providers: [BadgesService, BadgesRepository],
   controllers: [BadgesController],
+  exports: [BadgesService]
 })
 export class BadgesModule {}

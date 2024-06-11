@@ -16,16 +16,16 @@ export class UserBadgeController {
     @ApiResponse({ status: 201, description: 'The badge has been successfully added.' })
     @ApiResponse({ status: 400, description: 'Invalid input.' })
     async addBadge(@Request() req, @Body() addBadgeDto: AddBadgeDto) {
-        const userId = req.user.userId; 
-        return this.userBadgeService.create({ userId, badgeId: addBadgeDto.badgeId });
+        const userId = req.user.sub; 
+        return this.userBadgeService.create({ userId, badgeSlug: addBadgeDto.badgeSlug });
     }
 
     @UseGuards(AuthGuard)
     @Get('me/badges')
     @ApiOperation({ summary: 'Get current user with badges' })
     @ApiResponse({ status: 200, description: 'User with badges retrieved successfully.' })
-    async getUserWithBadges(@Request() req) {
-      const userId = req.user.userId;
-      return this.userBadgeService.getUserWithBadges(userId);
+    async findBadgeByUserId(@Request() req) {
+      const userId = req.user.sub;
+      return this.userBadgeService.findBadgeByUserId(userId);
     }
 }

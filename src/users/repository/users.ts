@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateUserDto } from "../dtos/create-user-dto";
 import * as bcrypt from 'bcrypt';
+import { User } from "../entity/User";
 
 @Injectable()
 export class UsersRepository {
@@ -13,12 +14,12 @@ export class UsersRepository {
         });
       }
 
-    async create(createUserDto: CreateUserDto) {
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    async create(createUser: User) {
+        const hashedPassword = await bcrypt.hash(createUser.password, 10);
         return this.prisma.user.create({ 
             data: {
-                email: createUserDto.email,
-                name: createUserDto.name,
+                email: createUser.email,
+                name: createUser.name,
                 password: hashedPassword,
               }, 
         });

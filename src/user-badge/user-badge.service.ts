@@ -1,22 +1,47 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { UserBadgeRepository } from './repository/user-badge';
 import { AddBadgeDto } from './dtos/add-badge.dto';
+import { BadgesService } from 'src/badges/badges.service';
+import { UserDto } from 'src/users/dtos/user.dto';
+import { BadgeDto } from './dtos/badge.dto';
 
 @Injectable()
 export class UserBadgeService {
-  constructor(private readonly repository: UserBadgeRepository) { }
+  constructor(
+    private readonly repository: UserBadgeRepository,
+    private readonly badgesService: BadgesService
+  ) { }
 
-  async create(addBadgeDto: { userId: number; badgeId: number}) {
+  async create(addBadgeDto: { userId: number; badgeSlug: string}) {
     try {
-      return this.repository.create(addBadgeDto);
+      const badge = await this.badgesService.findBySlug(addBadgeDto.badgeSlug);
+      if (!badge) {
+        throw new HttpException(`Badge ${addBadgeDto.badgeSlug} inexistente`, 400);
+      }
+      const hasBadge = await this.repository.hasBadge(addBadgeDto.userId, badge.id);
+      if (hasBadge) {
+        throw new HttpException(`Badge ${addBadgeDto.badgeSlug} ja adicionado`, 400);
+      }
+
+      const addBadgeIdDto = { userId: addBadgeDto.userId, badgeId: badge.id };
+      return this.repository.create(addBadgeIdDto);
     } catch (error) {
-      throw new HttpException(`Não foi possível adicionar o badge ${addBadgeDto.badgeId}`, 400);
+      throw new HttpException(`Não foi possível adicionar o badge: ${error.message}`, 400);
     }
   }
 
-  async getUserWithBadges(userId: number) {
+  async findBadgeByUserId(userId: number): Promise<BadgeDto[] | null> {
     try {
-      return this.repository.getUserWithBadges(userId);
+      const badges = await this.repository.findBadgeByUserId(userId);
+
+      const badgesDto = badges.map(e => ({
+        id: e.id,
+        slug: e.slug,
+        name: e.name,
+        imageUrl: e.imageUrl,
+      }));
+      
+      return badgesDto;
     } catch (error) {
       throw new HttpException(`Não foi possível obter badges do usuário ${userId}`, 400);
     }

@@ -1,23 +1,34 @@
+import { Injectable } from "@nestjs/common";
+import { Badge } from "src/badges/entity/Badge";
 import { PrismaService } from "src/prisma/prisma.service";
+import { User } from "src/users/entity/User";
 
+@Injectable()
 export class UserBadgeRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(addBadgeDto: { userId: number; badgeId: number }) {
-    return this.prisma.userBadge .create({ data: addBadgeDto });
+  async create(addBadgeIdDto: { userId: number; badgeId: number }) {
+    return this.prisma.userBadge.create({ data: addBadgeIdDto });
   }
 
-  async getUserWithBadges(userId: number) {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        badges: {
-          include: {
-            badge: true,
-          },
-        },
+  async findBadgeByUserId(userId: number ): Promise<Badge[] | null> {
+    const badge = await this.prisma.userBadge.findMany({
+      where: {
+        userId
       },
-    });
+      include: {
+        badge: true
+      }
+    })
+
+    const badges = badge.map(e => new Badge({
+      id: e.badge.id,
+      slug: e.badge.slug,
+      name: e.badge.name,
+      imageUrl: e.badge.imageUrl
+   }));
+
+    return badges
   }
 
   async removeBadge(userId: number, badgeId: number) {
@@ -31,4 +42,15 @@ export class UserBadgeRepository {
     });
   }
 
+  async hasBadge(userId: number, badgeId: number): Promise<boolean> {
+    const userBadge = await this.prisma.userBadge.findUnique({
+      where: {
+        badgeId_userId: {
+          userId,
+          badgeId,
+        },
+      },
+    });
+    return !!userBadge; 
+  }
 }

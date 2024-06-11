@@ -7,7 +7,7 @@ export class SignInDto {
     @MaxLength(50)
     email: string;
   
-    @ApiProperty({ example: 'password', description: 'The password of the user' })
+    @ApiProperty({ example: '123', description: 'The password of the user' })
     @IsString()
     @MaxLength(100)
     password: string;

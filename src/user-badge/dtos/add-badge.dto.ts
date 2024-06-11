@@ -1,8 +1,9 @@
-import { IsInt } from "@nestjs/class-validator";
+import { IsString, MaxLength } from "@nestjs/class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class AddBadgeDto {  
-    @ApiProperty({ example: 2, description: 'The ID of the badge' })
-    @IsInt()
-    badgeId: number;
+    @ApiProperty({ example: "cda", description: 'The Slug of the badge' })
+    @IsString()
+    @MaxLength(50)
+    badgeSlug: string;
   }
