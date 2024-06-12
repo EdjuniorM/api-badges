@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: badges
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/badges"
+      JWT_SECRET: "sua_chave_secreta"
+    depends_on:
+      - db
+    command: ["sh", "-c", "npm run prisma:migrate && npm run seed && npm run start:prod"]
+
+volumes:
+  db-data:

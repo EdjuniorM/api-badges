@@ -1,6 +1,6 @@
-import { Controller, Body, Post } from '@nestjs/common';
+import { Controller, Body, Post, Request, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user-dto';
 import { Public } from 'src/auth/public.decorator';
 @ApiTags('users')
@@ -16,4 +16,14 @@ export class UsersController {
     async create(@Body() createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
     }
+
+    @ApiBearerAuth()
+    @Get()
+    @ApiOperation({ summary: 'Get user data' })
+    @ApiResponse({ status: 200, description: 'User data retrieved successfully.' })
+    async findDataUser(@Request() req) {
+        const userId = req.user.sub;
+        return this.usersService.findById(userId);
+    }
+
 }

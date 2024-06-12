@@ -23,6 +23,7 @@ describe('BadgesService', () => {
             findBySlug: jest.fn(),
             findById: jest.fn(),
             update: jest.fn(),
+            // delete: jest.fn(),
           },
         },
       ],
@@ -141,4 +142,34 @@ describe('BadgesService', () => {
       });
     });
   });
+
+  // describe('delete', () => {
+  //   it('should delete a badge', async () => {
+  //     const badgeId = 60;
+  //     const existingBadge: { id: number; slug: string; name: string; imageUrl: string; } = {
+  //       id: 1,
+  //       slug: 'test-slug',
+  //       name: 'Test Badge',
+  //       imageUrl: 'http://example.com/image.png',
+  //     };
+
+  //     jest.spyOn(repository, 'findById').mockResolvedValue(existingBadge);
+  //     jest.spyOn(repository, 'delete').mockResolvedValue(null);
+
+  //     const result = await service.delete(badgeId);
+
+  //     expect(result).toBeNull();
+  //     expect(repository.findById).toHaveBeenCalledWith(badgeId);
+  //     expect(repository.delete).toHaveBeenCalledWith(badgeId);
+  //   });
+
+  //   it('should throw an error if badge is not found', async () => {
+  //     const badgeId = 1;
+
+  //     jest.spyOn(repository, 'findById').mockResolvedValue(null);
+
+  //     await expect(service.delete(badgeId)).rejects.toThrow(HttpException);
+  //     await expect(service.delete(badgeId)).rejects.toThrow('Badge inexistente');
+  //   });
+  // });
 })

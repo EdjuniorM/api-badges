@@ -8,25 +8,31 @@ datasource db {
 }
 
 model Badge {
-  id        Int    @id @default(autoincrement())
-  slug      String @unique @db.VarChar(50)
-  name      String @db.VarChar(100)
-  imageUrl  String @db.VarChar(255)
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique @db.VarChar(50)
+  name      String    @db.VarChar(100)
+  imageUrl  String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
   users     UserBadge []
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String  @db.VarChar(50)
-  password String
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String     @db.VarChar(50)
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
   badges   UserBadge []
 }
 
 model UserBadge  {
-  badgeId Int
-  userId  Int
-  badge   Badge    @relation(fields: [badgeId], references: [id])
-  user    User     @relation(fields: [userId], references: [id])
+  badgeId   Int
+  userId    Int
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
   @@id([badgeId, userId])
 }

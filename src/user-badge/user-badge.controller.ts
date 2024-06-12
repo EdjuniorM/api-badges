@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
 import { UserBadgeService } from './user-badge.service';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { AddBadgeDto } from './dtos/add-badge.dto';
 
 @ApiTags('user-badge')
@@ -10,7 +9,7 @@ import { AddBadgeDto } from './dtos/add-badge.dto';
 export class UserBadgeController {
     constructor(private readonly userBadgeService: UserBadgeService) {}
 
-    @UseGuards(AuthGuard)
+    @ApiBearerAuth()
     @Post()
     @ApiOperation({ summary: 'Add badge to user' })
     @ApiResponse({ status: 201, description: 'The badge has been successfully added.' })
@@ -20,12 +19,23 @@ export class UserBadgeController {
         return this.userBadgeService.create({ userId, badgeSlug: addBadgeDto.badgeSlug });
     }
 
-    @UseGuards(AuthGuard)
+    @ApiBearerAuth()
     @Get('me/badges')
     @ApiOperation({ summary: 'Get current user with badges' })
     @ApiResponse({ status: 200, description: 'User with badges retrieved successfully.' })
     async findBadgeByUserId(@Request() req) {
       const userId = req.user.sub;
       return this.userBadgeService.findBadgeByUserId(userId);
+    }
+
+    @ApiBearerAuth()
+    @Delete('me/badges/:badgeId')
+    @ApiOperation({ summary: 'Remove badge from user' })
+    @ApiResponse({ status: 200, description: 'The badge has been successfully removed.' })
+    @ApiResponse({ status: 404, description: 'Badge not found.' })
+    @ApiParam({ name: 'badgeId', type: Number })
+    async removeBadge(@Request() req, @Param('badgeId', ParseIntPipe) badgeId: number) {
+      const userId = req.user.sub;
+      return this.userBadgeService.removeBadge(userId, badgeId);
     }
 }

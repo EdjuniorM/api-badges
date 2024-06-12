@@ -98,4 +98,16 @@ export class BadgesService {
     throw new HttpException(error.message, 400);
   }
   }
+
+  // async delete(id: number) {
+  //   try {
+  //     const badge = await this.repository.findById(id);
+  //     if (!badge) {
+  //       throw new HttpException('Badge inexistente', 404);
+  //     }
+  //     return this.repository.delete(id);
+  //   } catch (error) {
+  //     throw new HttpException(error.message, error.status);
+  //   }
+  // }
 }

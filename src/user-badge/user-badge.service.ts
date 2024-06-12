@@ -1,8 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { UserBadgeRepository } from './repository/user-badge';
-import { AddBadgeDto } from './dtos/add-badge.dto';
 import { BadgesService } from 'src/badges/badges.service';
-import { UserDto } from 'src/users/dtos/user.dto';
 import { BadgeDto } from './dtos/badge.dto';
 
 @Injectable()

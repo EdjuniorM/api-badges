@@ -59,4 +59,8 @@ export class BadgesRepository {
     async findBySlug(slug: string): Promise<Badge | null> {
         return this.prisma.badge.findFirst({ where: { slug } });
     }
+
+    // async delete(id: number) {
+    //   return this.prisma.badge.delete({ where: { id } });
+    // }
 }

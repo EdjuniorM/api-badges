@@ -3,9 +3,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { JwtService } from '@nestjs/jwt';
 import { AppModule } from 'src/app.module';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 describe('BadgesController (integration)', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
   let jwtService: JwtService;
   let accessToken: string;
 
@@ -17,10 +19,17 @@ describe('BadgesController (integration)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+   prisma = moduleFixture.get<PrismaService>(PrismaService);
+
+    
+    await prisma.userBadge.deleteMany({});
+    await prisma.badge.deleteMany({});
+    await prisma.user.deleteMany({});
 
     jwtService = moduleFixture.get<JwtService>(JwtService);
     accessToken = jwtService.sign({ sub: 1, username: 'testuser' }); 
   }, 20000); 
+  
 
   afterAll(async () => {
     await app.close();

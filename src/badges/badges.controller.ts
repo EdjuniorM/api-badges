@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Post, Body, Put, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Request, Post, Body, Put, Param, ParseIntPipe, Delete } from '@nestjs/common';
 import { BadgesService } from './badges.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateBadgeDto } from './dtos/create-badge.dto';
@@ -49,4 +49,14 @@ export class BadgesController {
     async update(@Param('id', ParseIntPipe) id: number, @Body() updateBadgeDto: UpdateBadgeDto) {
       return this.badgesService.update(id, updateBadgeDto);
     }
+
+    // @ApiBearerAuth()
+    // @Delete(':id')
+    // @ApiOperation({ summary: 'Delete an existing badge' })
+    // @ApiResponse({ status: 200, description: 'The badge has been successfully deleted.' })
+    // @ApiResponse({ status: 404, description: 'Badge not found.' })
+    // @ApiParam({ name: 'id', type: Number })
+    // async delete(@Param('id', ParseIntPipe) id: number) {
+    //   return this.badgesService.delete(id);
+    // }
 }
