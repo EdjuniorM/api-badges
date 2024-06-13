@@ -26,4 +26,12 @@ export class UsersController {
         return this.usersService.findById(userId);
     }
 
+
+    @ApiBearerAuth()
+    @Get('/listAll')
+    @ApiOperation({ summary: 'Get all users data' })
+    @ApiResponse({ status: 200, description: 'User data retrieved successfully.' })
+    async listAll() {
+        return this.usersService.listAll();
+    }
 }

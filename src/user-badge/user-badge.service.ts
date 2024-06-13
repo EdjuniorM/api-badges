@@ -28,18 +28,21 @@ export class UserBadgeService {
     }
   }
 
-  async findBadgeByUserId(userId: number): Promise<BadgeDto[] | null> {
+  async findBadgeByUserId(page: number, size: number, sort: string, order: string, search: string, userId: number) {
     try {
-      const badges = await this.repository.findBadgeByUserId(userId);
-
-      const badgesDto = badges.map(e => ({
-        id: e.id,
-        slug: e.slug,
-        name: e.name,
-        imageUrl: e.imageUrl,
-      }));
-      
-      return badgesDto;
+      const { result, totalItems } = await this.repository.findBadgeByUserId(page, size, sort, order, search, userId);
+      const totalPages = Math.ceil(totalItems / size);
+      const currentPage = Number(page);
+  
+      return {
+        result,
+        pagination: {
+          totalCount: totalItems,
+          pageCount: totalPages,
+          currentPage: currentPage,
+          perPage: size,
+        },
+      };
     } catch (error) {
       throw new HttpException(`Não foi possível obter badges do usuário ${userId}`, 400);
     }
@@ -50,6 +53,14 @@ export class UserBadgeService {
       return this.repository.removeBadge(userId, badgeId);
     } catch (error) {
       throw new HttpException(`Não foi possível remover o badge ${badgeId} do usuário ${userId}`, 400);
+    }
+  }
+
+  async getUserBadges(userId: number) {
+    try {
+      return this.repository.getUserBadges(userId);
+    } catch (error) {
+      throw new HttpException(`Não foi possível obter badges do usuário ${userId}`, 400);
     }
   }
 }

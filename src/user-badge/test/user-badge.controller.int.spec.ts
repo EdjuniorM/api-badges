@@ -25,28 +25,30 @@ describe('UserBadgeController (integration)', () => {
     prisma = moduleFixture.get<PrismaService>(PrismaService);
     jwtService = moduleFixture.get<JwtService>(JwtService);
 
-    
     await prisma.userBadge.deleteMany({});
     await prisma.badge.deleteMany({});
     await prisma.user.deleteMany({});
 
-    
     const user = await prisma.user.create({
       data: {
-        email: 'user@example.com',
+        email: 'userBadge@example.com',
         name: 'Test User',
         password: 'password',
       },
     });
 
     userId = user.id;
+    console.log('userId', userId);
 
-    
-    accessToken = jwtService.sign({ sub: userId, email: 'user@example.com' });
-  });
+    accessToken = jwtService.sign({ sub: userId, email: 'userBadge@example.com' });
+  }, 20000);
 
+  
 
   afterAll(async () => {
+    await prisma.userBadge.deleteMany({});
+    await prisma.badge.deleteMany({});
+    await prisma.user.deleteMany({});
     await app.close();
   });
 
@@ -66,6 +68,8 @@ describe('UserBadgeController (integration)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ badgeSlug: badge.slug });
 
+      console.log('userId2', userId);
+
     expect(response.status).toBe(201);
     expect(response.body).toEqual(
       expect.objectContaining({
@@ -75,25 +79,31 @@ describe('UserBadgeController (integration)', () => {
     );
   });
 
-  it('/user-badge/me/badges (GET) - should get badges for current user', async () => {
-
+  it('/user-badge/me/badges (GET) - should get paginated badges for current user', async () => {
     const response = await request(app.getHttpServer())
       .get('/user-badge/me/badges')
+      .query({ page: 1, size: 10, order: 'asc', search: '' })
       .set('Authorization', `Bearer ${accessToken}`);
-
+  
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([
+    expect(response.body.result).toHaveLength(1);
+    expect(response.body.result[0]).toEqual(
       expect.objectContaining({
-        id: response.body[0].id,
-        slug: response.body[0].slug,
-        name: response.body[0].name,
-        imageUrl: response.body[0].imageUrl,
+        id: expect.any(Number),
+        slug: 'testUser-badge',
+        name: 'Test Badge',
+        imageUrl: 'http://example.com/image.png',
       }),
-    ]);
+    );
+    expect(response.body.pagination).toEqual({
+      totalCount: 1,
+      pageCount: 1,
+      currentPage: 1,
+      perPage: 10,
+    });
   });
 
   it('/user-badge/me/badges/:badgeId (DELETE) - should remove a badge from user', async () => {
-
     const badge = await prisma.badge.create({
       data: {
         slug: 'test-badge-delete',
@@ -101,7 +111,7 @@ describe('UserBadgeController (integration)', () => {
         imageUrl: 'http://example.com/image.png',
       },
     });
-
+    console.log('userId3', userId);
     await prisma.userBadge.create({
       data: {
         userId: userId,

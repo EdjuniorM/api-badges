@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { Badge } from "src/badges/entity/Badge";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User } from "src/users/entity/User";
@@ -11,24 +12,57 @@ export class UserBadgeRepository {
     return this.prisma.userBadge.create({ data: addBadgeIdDto });
   }
 
-  async findBadgeByUserId(userId: number ): Promise<Badge[] | null> {
-    const badge = await this.prisma.userBadge.findMany({
+  async findBadgeByUserId(
+    page: number,
+    size: number,
+    sort: string,
+    order: string,
+    search: string,
+    userId: number
+  ): Promise<{ result: Badge[]; totalItems: number }> {
+    
+    const skip = Math.max(0, (page - 1) * size);
+    const take = size;
+    const orderBy = { [sort]: order };
+    const where = search
+      ? {
+          badge: {
+            name: {
+              contains: search,
+              mode: 'insensitive' as Prisma.QueryMode,
+            },
+          },
+        }
+      : {};
+    const userBadges = await this.prisma.userBadge.findMany({
+      skip,
+      take,
+      orderBy,
       where: {
-        userId
+        userId,
+        ...where
       },
       include: {
-        badge: true
-      }
-    })
-
-    const badges = badge.map(e => new Badge({
+        badge: true,
+      },
+    });
+  
+    const totalItems = await this.prisma.userBadge.count({
+      where: {
+        userId,
+        ...where
+      },
+    });
+  
+    const result = userBadges.map(e => new Badge({
       id: e.badge.id,
       slug: e.badge.slug,
       name: e.badge.name,
       imageUrl: e.badge.imageUrl
-   }));
-
-    return badges
+    }));
+    
+  
+    return { result, totalItems };
   }
 
   async removeBadge(userId: number, badgeId: number) {
@@ -52,5 +86,23 @@ export class UserBadgeRepository {
       },
     });
     return !!userBadge; 
+  }
+
+  async getUserBadges(userId: number) {
+    const userBadges= await this.prisma.userBadge.findMany({
+      where: {
+        userId
+      },
+      include: {
+        badge: true
+      },
+    });
+
+    return userBadges.map(userBadge => ({
+        id: userBadge.badge.id,
+        slug: userBadge.badge.slug,
+        name: userBadge.badge.name,
+        imageUrl: userBadge.badge.imageUrl,
+    }));
   }
 }

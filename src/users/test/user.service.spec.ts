@@ -18,6 +18,7 @@ describe('UsersService', () => {
             findByEmail: jest.fn(),
             create: jest.fn(),
             findById: jest.fn(),
+            listAll: jest.fn(),
           },
         },
       ],
@@ -66,6 +67,17 @@ describe('UsersService', () => {
       jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
       await expect(service.findById(999)).rejects.toThrow(HttpException);
+    });
+  });
+
+  describe('listAll', () => {
+    it('should return all users', async () => {
+      const users = [{ id: 1, email: 'test@example.com', name: 'Test User', password: 'password', createdAt: new Date(), updatedAt: new Date() }];
+      jest.spyOn(repository, 'listAll').mockResolvedValue(users);
+
+      const result = await service.listAll();
+
+      expect(result).toEqual(users);
     });
   });
 });

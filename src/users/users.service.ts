@@ -47,5 +47,8 @@ export class UsersService {
       }
     }
    
+    async listAll() {
+      return this.repositoy.listAll();
+    }
   }
   

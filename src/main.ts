@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('API de Badges')
-    .setDescription('A API para gerenciamento de badges')
+    .setDescription('A API para gerenciamento de badges para o desafio backend da Cidade Alta')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

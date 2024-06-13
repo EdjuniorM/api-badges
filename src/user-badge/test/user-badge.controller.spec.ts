@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserBadgeController } from '../user-badge.controller';
 import { UserBadgeService } from '../user-badge.service';
 import { AddBadgeDto } from '../dtos/add-badge.dto';
+import { Badge } from 'src/badges/entity/Badge';
 
 describe('UserBadgeController', () => {
   let controller: UserBadgeController;
@@ -45,18 +46,26 @@ describe('UserBadgeController', () => {
   });
 
   describe('findBadgeByUserId', () => {
-    it('should return badges for the current user', async () => {
-      const req = { user: { sub: 1 } };
+    it('should return paginated badges for current user', async () => {
+      const req = { user: { sub: 1 }, query: { page: '1', size: '10', sort: 'name', order: 'asc', search: '' } };
       const badges = [
-        { id: 1, slug: 'test-badge', name: 'Test Badge', imageUrl: 'http://example.com/image.png' },
+        new Badge({ id: 1, slug: 'test-badge', name: 'Test Badge', imageUrl: 'http://example.com/image.png' }),
       ];
 
-      jest.spyOn(service, 'findBadgeByUserId').mockResolvedValue(badges);
+      const paginatedResult = {
+        result: badges,
+        pagination: {
+          totalCount: 1,
+          pageCount: 1,
+          currentPage: 1,
+          perPage: 10,
+        },
+      };
 
-      const result = await controller.findBadgeByUserId(req);
+      jest.spyOn(service, 'findBadgeByUserId').mockResolvedValue(paginatedResult);
 
-      expect(result).toEqual(badges);
-      expect(service.findBadgeByUserId).toHaveBeenCalledWith(req.user.sub);
+      expect(await controller.findBadgeByUserId(req)).toBe(paginatedResult);
+      expect(service.findBadgeByUserId).toHaveBeenCalledWith(1, 10, 'name', 'asc', '', 1);
     });
   });
 

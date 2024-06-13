@@ -30,4 +30,8 @@ export class UsersRepository {
         where: { id },
       });
     }
+
+    async listAll() {
+      return this.prisma.user.findMany();
+    }
 }

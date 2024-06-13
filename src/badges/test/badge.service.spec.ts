@@ -118,15 +118,19 @@ describe('BadgesService', () => {
   describe('update', () => {
     it('should update a badge', async () => {
       const updateBadgeDto: UpdateBadgeDto = { name: 'Updated Badge' };
-      const existingBadge: { id: number; slug: string; name: string; imageUrl: string; } = {
+      const existingBadge: { id: number; slug: string; name: string; imageUrl: string; createdAt: Date; updatedAt: Date; } = {
         id: 1,
         slug: 'test-slug',
         name: 'Test Badge',
         imageUrl: 'http://example.com/image.png',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-      const updatedBadge: BadgeDto = {
+      const updatedBadge = {
         ...existingBadge,
         ...updateBadgeDto,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       jest.spyOn(repository, 'findById').mockResolvedValue(existingBadge);

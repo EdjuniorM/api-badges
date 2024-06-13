@@ -3,6 +3,7 @@ import { UserBadgeService } from '../user-badge.service';
 import { BadgesService } from 'src/badges/badges.service';
 import { HttpException } from '@nestjs/common';
 import { UserBadgeRepository } from '../repository/user-badge';
+import { Badge } from 'src/badges/entity/Badge';
 
 describe('UserBadgeService', () => {
   let service: UserBadgeService;
@@ -77,21 +78,36 @@ describe('UserBadgeService', () => {
   });
 
   describe('findBadgeByUserId', () => {
-    it('should return badges for a user', async () => {
+    it('should return paginated badges for a user', async () => {
+      const page = 1;
+      const size = 10;
+      const sort = 'name';
+      const order = 'asc';
+      const search = '';
       const userId = 1;
+
       const badges = [
-        { id: 1, slug: 'test-badge', name: 'Test Badge', imageUrl: 'http://example.com/image.png' },
+        new Badge({ id: 1, slug: 'test-badge', name: 'Test Badge', imageUrl: 'http://example.com/image.png' }),
       ];
 
-      jest.spyOn(repository, 'findBadgeByUserId').mockResolvedValue(badges);
+      const paginatedResult = {
+        result: badges,
+        pagination: {
+          totalCount: 1,
+          pageCount: 1,
+          currentPage: page,
+          perPage: size,
+        },
+      };
 
-      const result = await service.findBadgeByUserId(userId);
+      jest.spyOn(repository, 'findBadgeByUserId').mockResolvedValue({ result: badges, totalItems: 1 });
 
-      expect(result).toEqual(badges);
-      expect(repository.findBadgeByUserId).toHaveBeenCalledWith(userId);
+      const result = await service.findBadgeByUserId(page, size, sort, order, search, userId);
+
+      expect(result).toEqual(paginatedResult);
+      expect(repository.findBadgeByUserId).toHaveBeenCalledWith(page, size, sort, order, search, userId);
     });
   });
-
   describe('removeBadge', () => {
     it('should remove a badge from a user', async () => {
       const userId = 1;
@@ -105,4 +121,10 @@ describe('UserBadgeService', () => {
       expect(repository.removeBadge).toHaveBeenCalledWith(userId, badgeId);
     });
   });
-});
+
+  });
+  
+
+
+
+

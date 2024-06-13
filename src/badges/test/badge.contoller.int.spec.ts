@@ -32,6 +32,9 @@ describe('BadgesController (integration)', () => {
   
 
   afterAll(async () => {
+    await prisma.userBadge.deleteMany({});
+    await prisma.badge.deleteMany({});
+    await prisma.user.deleteMany({});
     await app.close();
   });
 
